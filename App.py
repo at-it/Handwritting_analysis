@@ -6,7 +6,7 @@ from PIL import ImageGrab, Image
 import numpy as np
 import win32gui
 
-model = load_model("datasets/mnist.h5")
+model = load_model("model/mnist.h5")
 
 
 def predict_digit(img):
