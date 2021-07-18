@@ -1,4 +1,5 @@
-from keras.models import load_model
+import tensorflow as tf
+from tensorflow.keras.models import load_model
 from tkinter import *
 import tkinter as tk
 from PIL import ImageGrab, Image
@@ -24,10 +25,13 @@ class App(tk.Tk):
         self.x = self.y = 0
 
         # Creating elements
-        self.canvas = tk.Canvas(self, width=300, height=300, bg="black", cursor="cross")
+        self.canvas = tk.Canvas(
+            self, width=300, height=300, bg="black", cursor="cross")
         self.label = tk.Label(self, text="Thinking...", font=("Helvetica", 48))
-        self.classify_btn = tk.Button(self, text="Recognize", command=self.classify_handwriting)
-        self.button_clear = tk.Button(self, text="Clear", command=self.clear_all)
+        self.classify_btn = tk.Button(
+            self, text="Recognize", command=self.classify_handwriting)
+        self.button_clear = tk.Button(
+            self, text="Clear", command=self.clear_all)
 
         # Grid structure
         self.canvas.grid(row=0, column=0, pady=2, sticky=W)
@@ -46,13 +50,15 @@ class App(tk.Tk):
         im = ImageGrab.grab(rect)
 
         digit, acc = predict_digit(im)
-        self.label.configure(text=str(digit) + ", " + str(int(acc * 100)) + "%")
+        self.label.configure(text=str(digit) + ", " +
+                             str(int(acc * 100)) + "%")
 
     def draw_lines(self, event):
         self.x = event.x
         self.y = event.y
         r = 8
-        self.canvas.create_oval(self.x - r, self.y - r, self.x + r, self.y + r, fill="white")
+        self.canvas.create_oval(self.x - r, self.y - r,
+                                self.x + r, self.y + r, fill="white")
 
 
 app = App()
