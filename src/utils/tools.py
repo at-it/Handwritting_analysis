@@ -37,27 +37,28 @@ def preprocess_dataset(dataset: Dataset):
 
 def define_sequential_model(num_classes: int, input_shape: Tuple[int, int, int]):
     model = Sequential()
-    model.add(Conv2D(28, kernel_size=(3, 3)))
+    model.add(Conv2D(32, kernel_size=(3, 3)))
+    model.add(Conv2D(64, kernel_size=(3, 3)))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Flatten())
-    model.add(Dense(128, activation=tensorflow.nn.relu))
-    model.add(Dropout(0.2))
-    model.add(Dense(num_classes, activation=tensorflow.nn.softmax))
+    model.add(Dense(256, activation='relu'))
+    model.add(Dropout(0.5))
+    model.add(Dense(num_classes, activation='softmax'))
     return model
 
 
 def train_sequential(dataset: dataset, num_classes: int, input_shape: Tuple[int, int, int]):
 
     # Set model settings
-    batch_size = 32
-    epochs = 10
+    batch_size = 100
+    epochs = 20
 
     model = define_sequential_model(num_classes, input_shape)
     model.compile(loss=tensorflow.keras.losses.categorical_crossentropy, optimizer="adam",
                   metrics=["accuracy"])
-    hist = model.fit(dataset.X_train, dataset.y_train, batch_size=batch_size, epochs=epochs, verbose=1,
+    hist = model.fit(dataset.X_train, dataset.y_train, batch_size=batch_size, epochs=epochs, verbose=2,
                      validation_data=(dataset.X_test, dataset.y_test))
-    model.save("model\mnist.h5")
+    model.save("src\model\mnist2.h5")
 
     evaluate_sequential_model(model, dataset.X_test, dataset.y_test)
 
