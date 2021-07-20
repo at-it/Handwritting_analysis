@@ -16,30 +16,13 @@ def create_main_window() -> Tk():
 
 
 def create_canvas(root) -> Canvas:
-    cv = Canvas(root, width=640, height=480, bg='white')
+    cv = Canvas(root, width=480, height=320, bg='white')
     cv.grid(row=0, column=0, pady=2, sticky=W, columnspan=2)
     return cv
 
 
 def clear_canvas(cv: Canvas) -> None:
     cv.delete('all')
-
-
-def add_buttons_labels(cv) -> None:
-    btn_save = Button(cv, text='Recognize Digit', command=recognize_digit)
-    btn_save.grid(row=2, column=0, pady=1, padx=1)
-    btn_clear = Button(cv, text='Clear window', command=clear_canvas(cv))
-    btn_clear.grid(row=2, column=1, pady=1, padx=1)
-
-
-def bind_events(cv) -> None:
-    cv.bind('<Button-1>', lambda event: activate_event(cv=cv))
-
-
-def activate_event(event, cv: Canvas) -> None:
-    global lastx, lasty
-    cv.bind('<B1-Motion>', draw_lines('<B1-Motion>', cv))
-    lastx, lasty = event.x, event.y
 
 
 def draw_lines(event, cv: Canvas) -> None:
@@ -50,20 +33,27 @@ def draw_lines(event, cv: Canvas) -> None:
     lastx, lasty = x, y
 
 
+def activate_event(event, cv: Canvas) -> None:
+    global lastx, lasty
+    cv.bind('<B1-Motion>', lambda event: draw_lines(event, cv=cv))
+    lastx, lasty = event.x, event.y
+
+
+def bind_events(cv) -> None:
+    cv.bind('<Button-1>', lambda event: activate_event(event, cv=cv))
+
+
 def recognize_digit(root: Tk, cv: Canvas, model) -> None:
     global image_number
-    predictions = []
-    percentage = []
-    # image_number = 0
-    filename = f'image_{image_number}.png'
-    widget = cv
+
+    filename = f'src/images/image_{image_number}.png'
 
     # get the widget coordinates
-    x = root.winfo_rootx() + widget.winfo_x()
-    y = root.winfo_rooty() + widget.winfo_y()
+    x = root.winfo_rootx() + cv.winfo_x()
+    y = root.winfo_rooty() + cv.winfo_y()
 
-    x1 = x + widget.winfo_width()
-    y1 = y + widget.winfo_height()
+    x1 = x + cv.winfo_width()
+    y1 = y + cv.winfo_height()
 
     # grab the image, crop it according to my requirement and save it in png
     ImageGrab.grab().crop((x, y, x1, y1)).save(filename)
@@ -74,7 +64,7 @@ def recognize_digit(root: Tk, cv: Canvas, model) -> None:
     # converting to greyscale
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    # apply Qtsu thresholding
+    # apply Otsu thresholding
     ret, th = cv2.threshold(
         gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
 
@@ -115,3 +105,11 @@ def recognize_digit(root: Tk, cv: Canvas, model) -> None:
     # Showing the predicted results on new window
     cv2.imshow('image', image)
     cv2.waitKey(0)
+
+
+def add_buttons_labels(root, cv, model) -> None:
+    btn_save = Button(root, text='Recognize Digit',
+                      command=lambda: recognize_digit(root, cv, model))
+    btn_save.grid(row=2, column=0, pady=1, padx=1)
+    btn_clear = Button(root, text='Clear window', command=lambda: clear_canvas(cv))
+    btn_clear.grid(row=2, column=1, pady=1, padx=1)
