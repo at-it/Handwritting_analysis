@@ -12,6 +12,13 @@ def create_main_window() -> Tk():
     root = Tk()
     root.resizable(0, 0)
     root.title('Handwritten Digit Recongition GUI')
+    # w = 640
+    # h = 480
+    # ws = root.winfo_screenwidth()
+    # hs = root.winfo_screenheight()
+    # x = (ws/2) - (w/2)
+    # y = (hs/2) - (h/2)
+    # root.geometry('%dx%d+%d+%d' % (w, h, x, y))
     return root
 
 
@@ -111,5 +118,6 @@ def add_buttons_labels(root, cv, model) -> None:
     btn_save = Button(root, text='Recognize Digit',
                       command=lambda: recognize_digit(root, cv, model))
     btn_save.grid(row=2, column=0, pady=1, padx=1)
-    btn_clear = Button(root, text='Clear window', command=lambda: clear_canvas(cv))
+    btn_clear = Button(root, text='Clear window',
+                       command=lambda: clear_canvas(cv))
     btn_clear.grid(row=2, column=1, pady=1, padx=1)
