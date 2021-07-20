@@ -1,6 +1,3 @@
-import tensorflow as tf
-from tensorflow.keras.models import load_model
-import utils.gui
 import cv2
 from tkinter import *
 import tkinter as tk
@@ -11,18 +8,41 @@ lastx, lasty = None, None
 image_number = 0
 
 
-def clear_canvas() -> None:
-    global cv
+def create_main_window() -> Tk():
+    root = Tk()
+    root.resizable(0, 0)
+    root.title('Handwritten Digit Recongition GUI')
+    return root
+
+
+def create_canvas(root) -> Canvas:
+    cv = Canvas(root, width=640, height=480, bg='white')
+    cv.grid(row=0, column=0, pady=2, sticky=W, columnspan=2)
+    return cv
+
+
+def clear_canvas(cv: Canvas) -> None:
     cv.delete('all')
 
 
-def activate_event(event) -> None:
+def add_buttons_labels(cv) -> None:
+    btn_save = Button(cv, text='Recognize Digit', command=recognize_digit)
+    btn_save.grid(row=2, column=0, pady=1, padx=1)
+    btn_clear = Button(cv, text='Clear window', command=clear_canvas(cv))
+    btn_clear.grid(row=2, column=1, pady=1, padx=1)
+
+
+def bind_events(cv) -> None:
+    cv.bind('<Button-1>', lambda event: activate_event(cv=cv))
+
+
+def activate_event(event, cv: Canvas) -> None:
     global lastx, lasty
-    cv.bind('<B1-Motion>', draw_lines)
+    cv.bind('<B1-Motion>', draw_lines('<B1-Motion>', cv))
     lastx, lasty = event.x, event.y
 
 
-def draw_lines(event) -> None:
+def draw_lines(event, cv: Canvas) -> None:
     global lastx, lasty
     x, y = event.x, event.y
     cv.create_line((lastx, lasty, x, y), width=8, fill='black',
@@ -30,7 +50,7 @@ def draw_lines(event) -> None:
     lastx, lasty = x, y
 
 
-def recognize_digit() -> None:
+def recognize_digit(root: Tk, cv: Canvas, model) -> None:
     global image_number
     predictions = []
     percentage = []
@@ -95,22 +115,3 @@ def recognize_digit() -> None:
     # Showing the predicted results on new window
     cv2.imshow('image', image)
     cv2.waitKey(0)
-
-
-model = load_model("src/model/mnist2.h5")
-
-root = Tk()
-root.resizable(0, 0)
-root.title('Handwritten Digit Recongition GUI')
-
-cv = Canvas(root, width=480, height=320, bg='white')
-cv.grid(row=0, column=0, pady=2, sticky=W, columnspan=2)
-
-cv.bind('<Button-1>', activate_event)
-
-btn_save = Button(root, text='Recognize Digit', command=recognize_digit)
-btn_save.grid(row=2, column=0, pady=1, padx=1)
-btn_clear = Button(root, text='Clear window', command=clear_canvas)
-btn_clear.grid(row=2, column=1, pady=1, padx=1)
-
-root.mainloop()
